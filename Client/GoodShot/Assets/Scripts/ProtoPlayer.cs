@@ -25,17 +25,9 @@ public class ProtoPlayer : MonoBehaviour {
 		
 	}
 
-    public void ShootBall()
+    public void ShootBall(float powerRatio = 1.0f)
     {
         Debug.Log("Shot the ball.");
-        ballRB.AddForce(new Vector3(0, 1, 1) * power, ForceMode.Impulse);
-    }
-
-    public void Reset()
-    {
-        ballRB.velocity = Vector3.zero;
-        ballRB.angularVelocity = Vector3.zero;
-
-        ball.transform.position = initBallPosition;
+        ball.Shoot(power * powerRatio);
     }
 }
