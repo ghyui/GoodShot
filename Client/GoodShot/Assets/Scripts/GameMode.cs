@@ -4,23 +4,28 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class GameMode : MonoBehaviour {
-
-    [SerializeField]
-    float sliderAniSpeed = 2.0f;
-    [SerializeField]
-    Slider slider;
-    [SerializeField]
-    Text shotCountText;
-    [SerializeField]
-    Button shotButton;
+    
+    public static GameMode Instance
+    {
+        get { return instance; }
+    }
+    static GameMode instance;
 
     [SerializeField]
     ProtoPlayer player;
     [SerializeField]
     ProtoBall ball;
 
-    Coroutine sliderAnimation;
-    int shotCount;
+    public delegate void OnGameEvent();
+    public OnGameEvent OnGameStart;
+    public OnGameEvent OnShot;
+    public OnGameEvent OnBallStop;
+
+    private void Awake()
+    {
+        instance = this;
+        DontDestroyOnLoad(this);
+    }
 
     private void Start()
     {
@@ -29,51 +34,30 @@ public class GameMode : MonoBehaviour {
 
     public void GameStart()
     {
-        shotCount = 0;
-        ReadyToShoot();
+        if(OnGameStart != null)
+        {
+            OnGameStart();
+        }
 
         ball.onBallStop = () =>
         {
             Debug.Log("ball stopped.");
 
-            ReadyToShoot();
+            if(OnBallStop != null)
+            {
+                OnBallStop();
+            }
         };
     }
 
-    void ReadyToShoot()
+    
+    public void OnShotButtonClicked(float value)
     {
-        StartSliderAnimation();
-        shotButton.enabled = true;
-    }
-
-    void StartSliderAnimation()
-    {
-        sliderAnimation = StartCoroutine(SliderAnimation());
-    }
-
-    void StopSliderAnimation()
-    {
-        Debug.Log("Stop Slider Animation");
-        StopCoroutine(sliderAnimation);
-    }
-
-    IEnumerator SliderAnimation()
-    {
-        while (true)
+        player.ShootBall(value);
+        if(OnShot != null)
         {
-            slider.value = Mathf.Abs(Mathf.Sin(Time.realtimeSinceStartup * sliderAniSpeed));
-            yield return null;
+            OnShot();
         }
-    }
-
-    public void OnShotButtonClicked()
-    {
-        StopSliderAnimation();
-
-        player.ShootBall(slider.value);
-        shotCount++;
-
-        shotButton.enabled = false;
     }
 
     public void OnResetButtonClicked()
@@ -87,22 +71,5 @@ public class GameMode : MonoBehaviour {
     private void Reset()
     {
         Debug.Log("Game Reset");
-        if(sliderAnimation != null)
-        {
-            StopSliderAnimation();
-        }
-    }
-
-    private void Update()
-    {
-        UIUpdate();
-    }
-
-    private void UIUpdate()
-    {
-        if (shotCountText.text != shotCount.ToString())
-        {
-            shotCountText.text = shotCount.ToString();
-        }
     }
 }

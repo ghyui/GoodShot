@@ -28,15 +28,43 @@ public class ProtoBall : MonoBehaviour
         rb.freezeRotation = true;
     }
 
+    public bool IsShooting { get { return bShot; } }
     bool bShot = false;
     public void Shoot(float power)
     {
         rb.freezeRotation = false;
 
-        Debug.LogFormat("shot direction = {0}", transform.rotation * transform.forward);
-        rb.AddForce(transform.rotation * transform.forward * power, ForceMode.Impulse);
+        var shotDirection = transform.rotation * new Vector3(0, 1, 1);
+        Debug.LogFormat("shot direction = {0}", shotDirection);
+        rb.AddForce(shotDirection * power, ForceMode.Impulse);
         bShot = true;
         arrowObject.SetActive(false);
+
+        StartCoroutine(CheckBallStops());
+    }
+
+    IEnumerator CheckBallStops()
+    {
+        yield return new WaitForSeconds(0.5f);
+
+        while (rb.velocity != Vector3.zero || rb.angularVelocity != Vector3.zero)
+        {
+            yield return null;
+        }
+
+        OnBallStopped();
+    }
+
+    void OnBallStopped()
+    {
+        if (onBallStop != null)
+        {
+            onBallStop();
+        }
+
+        bShot = false;
+        arrowObject.SetActive(true);
+        transform.rotation = Quaternion.identity;
     }
 
     public void Reset()
@@ -66,26 +94,5 @@ public class ProtoBall : MonoBehaviour
         transform.Rotate(0, -turnRatio, 0);
     }
 
-    private void Update()
-    {
-        if(bShot)
-        {
-            if(rb.velocity == Vector3.zero && rb.angularVelocity == Vector3.zero)
-            {
-                OnBallStopped();
-            }
-        }
-    }
-
-    void OnBallStopped()
-    {
-        if (onBallStop != null)
-        {
-            onBallStop();
-        }
-
-        bShot = false;
-        arrowObject.SetActive(true);
-        transform.rotation = Quaternion.identity;
-    }
+    
 }
