@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System;
+using UnityEngine.EventSystems;
 
 public class ProtoBall : MonoBehaviour
 {
@@ -72,6 +73,7 @@ public class ProtoBall : MonoBehaviour
         Stop();
 
         transform.position = initPos;
+        transform.rotation = Quaternion.identity;
         onBallStop = null;
         bShot = false;
     }
@@ -82,6 +84,35 @@ public class ProtoBall : MonoBehaviour
         rb.angularVelocity = Vector3.zero;
 
         arrowObject.SetActive(true);
+    }
+
+    Coroutine rotatingCoroutine;
+    public void OnPointerDown(bool right)
+    {
+        Debug.Log("Rotation Started");
+        rotatingCoroutine = StartCoroutine(Rotating(right));
+    }
+
+    public void OnPointerUP()
+    {
+        Debug.Log("Rotation ended");
+        if(rotatingCoroutine != null)
+        {
+            StopCoroutine(rotatingCoroutine);
+            rotatingCoroutine = null;
+        }
+    }
+
+
+    IEnumerator Rotating(bool right)
+    {
+        var ratio = right ? turnRatio : -turnRatio;
+
+        while(true)
+        {
+            transform.Rotate(0, ratio, 0);
+            yield return null;
+        }
     }
 
     public void RotateRight()

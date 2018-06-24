@@ -16,6 +16,8 @@ public class GameMode : MonoBehaviour {
     [SerializeField]
     ProtoBall ball;
 
+    public ProtoBall Ball { get { return ball; }}
+
     public delegate void OnGameEvent();
     public OnGameEvent OnGameStart;
     public OnGameEvent OnShot;

@@ -10,14 +10,11 @@ public class ProtoPlayer : MonoBehaviour {
     float power = 100f;
 
     Rigidbody ballRB;
-    Vector3 initBallPosition;
 
 	// Use this for initialization
 	void Start () {
         ballRB = ball.GetComponent<Rigidbody>();
         Debug.Assert(ballRB != null, "ProtoBall doesn't have Rigidbody component.");
-
-        initBallPosition = ball.transform.position;
 	}
 	
 	// Update is called once per frame
