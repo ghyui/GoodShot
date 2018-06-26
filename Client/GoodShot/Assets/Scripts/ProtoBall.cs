@@ -35,7 +35,7 @@ public class ProtoBall : MonoBehaviour
     {
         rb.freezeRotation = false;
 
-        var shotDirection = transform.rotation * new Vector3(0, 1, 1);
+        var shotDirection = transform.rotation * new Vector3(0, 0, 1);
         Debug.LogFormat("shot direction = {0}", shotDirection);
         rb.AddForce(shotDirection * power, ForceMode.Impulse);
         bShot = true;

@@ -13,7 +13,7 @@ public class InGameUISystem : MonoBehaviour {
     static InGameUISystem instance;
 
     [SerializeField]
-    float sliderAniSpeed = 2.0f;
+    float sliderAniSpeed = 0.2f;
     [SerializeField]
     Slider slider;
     [SerializeField]
@@ -49,8 +49,6 @@ public class InGameUISystem : MonoBehaviour {
             {
                 ReadyToShoot();
             };
-
-        shotButton.onClick.AddListener(() => OnShotButtonClicked());
     }
 
     private void Update()
@@ -74,20 +72,44 @@ public class InGameUISystem : MonoBehaviour {
 
     void ReadyToShoot()
     {
-        StartSliderAnimation();
         controlObject.SetActive(true);
+        slider.value = 0;
     }
 
-    void OnShotButtonClicked()
+    bool bShooting = false;
+    public void OnShotButtonPointerDown()
+    {
+        Debug.Log("Shot Pointer Down");
+        StartSliderAnimation();
+        bShooting = true;
+    }
+
+    public void OnShotButtonPonterUp()
+    {
+        Debug.Log("Shot Pointer Up");
+        OnShot();
+    }
+
+    public void OnShotButtonPointerExit()
+    {
+        Debug.Log("Shot Pointer Exit");
+        if (bShooting == false)
+            return;
+        OnShot();
+    }
+
+    void OnShot()
     {
         StopSliderAnimation();
 
+        bShooting = false;
         shotCount++;
 
         controlObject.SetActive(false);
 
         GameMode.Instance.OnShotButtonClicked(slider.value);
     }
+
 
     void OnResetButtonClicked()
     {
@@ -113,9 +135,10 @@ public class InGameUISystem : MonoBehaviour {
 
     IEnumerator SliderAnimation()
     {
+        var startTime = Time.realtimeSinceStartup;
         while (true)
         {
-            slider.value = Mathf.Abs(Mathf.Sin(Time.realtimeSinceStartup * sliderAniSpeed));
+            slider.value = Mathf.Abs(Mathf.Sin((Time.realtimeSinceStartup - startTime) * sliderAniSpeed));
             yield return null;
         }
     }
